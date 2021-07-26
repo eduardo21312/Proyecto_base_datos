@@ -13,9 +13,9 @@ CREATE TABLE Provedor (
 
 CREATE TABLE TelefonoProvedor (
     telefono INTEGER,
-    razonSocial VARCHAR,
+    razonSocialT VARCHAR,
     PRIMARY KEY (telefono),
-    FOREIGN KEY (razonSocial) REFERENCES rasonSocial(Provedor)
+    FOREIGN KEY (razonSocialT) REFERENCES rasonSocial(Provedor)
 );
 
 CREATE TABLE Producto (
@@ -40,12 +40,12 @@ CREATE TABLE Ventas (
 );
 CREATE TABLE OrdenDetalle (
     numVentas VARCHAR(20),
-    idProducto INTEGER,
+    idProductoD INTEGER,
     precioProducto DECIMAL,
     cantidaProducto INTEGER
     PRIMARY KEY (ipProducto),
     --- Aqui se le tiene que agregar la otra PK de numVentas y la FK igualmente de numVentas
-    FOREIGN KEY (idProducto) REFERENCES idProducto(Producto)
+    FOREIGN KEY (idProductoD) REFERENCES idProducto(Producto)
 );
 --ALTER TABLE OrdenDEtalle ADD CONSTRAINT numVentas FOREIGN KEY (numVentas) REFERENCES TABLE Ventas(numVentas);
 CREATE TABLE Cliente (
@@ -63,7 +63,7 @@ CREATE TABLE Cliente (
 
 CREATE TABLE EmailCliente (
     email VARCHAR(30),
-    rfcCliente VARCHAR(25),
+    rfcClienteEC VARCHAR(25),
     PRIMARY KEY (email),
-    FOREIGN KEY (rfcCliente) REFERENCES rfc(Cliente)
+    FOREIGN KEY (rfcClienteEC) REFERENCES rfc(Cliente)
 );

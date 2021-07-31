@@ -38,15 +38,17 @@ CREATE TABLE Ventas (
     totalVenta VARCHAR (20),
     fechaVenta VARCHAR (20)
 );
+-- Orden detalle con dos llaves foraneas
 CREATE TABLE OrdenDetalle (
-    numVentas VARCHAR(20),
-    idProductoD INTEGER,
+    num_venta INTEGER,
+    id_productoD INTEGER,
     precioProducto DECIMAL,
     cantidaProducto INTEGER
-    PRIMARY KEY (ipProducto),
-    --- Aqui se le tiene que agregar la otra PK de numVentas y la FK igualmente de numVentas
-    FOREIGN KEY (idProductoD) REFERENCES idProducto(Producto)
+	constraint orden_venta_detalle_PK primary key (num_venta,id_producto),
+    constraint orden_producto_FK foreign key (id_producto) references Producto(idProducto),
+    constraint num_venta_FK foreign key (num_venta) references Venta(numVenta)
 );
+
 --ALTER TABLE OrdenDEtalle ADD CONSTRAINT numVentas FOREIGN KEY (numVentas) REFERENCES TABLE Ventas(numVentas);
 CREATE TABLE Cliente (
     rfc VARCHAR(25),

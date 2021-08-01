@@ -69,3 +69,17 @@ CREATE TABLE EmailCliente (
     PRIMARY KEY (email),
     FOREIGN KEY (rfcClienteEC) REFERENCES rfc(Cliente)
 );
+----Funcion de Utilidad 
+CREATE FUNCTION Utilidad (barras varchar(30))
+RETURNS varchar(70)
+AS $$
+DECLARE
+	precioProd numeric(5,0)= (SELECT precio from PRODUCTO WHERE codigoBarras=barras);
+	idProd numeric(5,0)=(SELECT idProducto FROM PRODUCTO WHERE codigoBarras=barras);
+	precioProdVenta numeric(5,0)=(SELECT precioProducto FROM OrdenDetalle WHERE idProd=id_producto);
+	resultado numeric(5,0)=precioProdVenta-precioProd;
+	cadena varchar(70);
+BEGIN
+	cadena='La utilidad del producto'||' '||'con código de barras'||' '||barras||' '||'es'||' '||cast(resultado as varchar(10));
+RETURN cadena;
+END;

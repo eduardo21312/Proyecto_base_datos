@@ -34,7 +34,7 @@ CREATE TABLE Inventario (
     PRIMARY KEY (codigoBarraInv)
 );
 CREATE TABLE Ventas (
-    numVenta VARCHAR ( 20),
+    numVenta INTEGER ,
     totalVenta VARCHAR (20),
     fechaVenta VARCHAR (20)
 );

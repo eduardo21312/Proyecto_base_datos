@@ -33,11 +33,10 @@ CREATE TABLE INVENTARIO(
 CREATE TABLE PRODUCTO (
 	id_producto int  GENERATED ALWAYS AS IDENTITY NOT NULL,
 	descripcion varchar(100)  NULL,
-	--nombre VARCHAR(40) NOT NULL,
 	marca VARCHAR(60) NOT NULL,
 	precio DECIMAL(6,2) NOT NULL CHECK(precio>0),
 	codigo_barras int NOT NULL,
-	--utilidad DECIMAL(6,2) NOT NULL ,
+	utilidad DECIMAL(7,2) NOT NULL ,
 	razon_social varchar(60) NOT NULL,
 	CONSTRAINT id_producto_PK PRIMARY KEY (id_producto),
 	CONSTRAINT PROVEEDOR_PRODUCTO_FK FOREIGN KEY (razon_social) REFERENCES PROVEDOR (razon_social),

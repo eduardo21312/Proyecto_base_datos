@@ -81,7 +81,7 @@ CREATE TABLE DETALLE_VENTA(
 	id_producto int  NOT NULL,
 	precio_producto DECIMAL(6,2) not null,
 	cantidad_producto int NOT NULL,
-	vental_total DECIMAL(7,2) NOT NULL,
+	venta_total DECIMAL(7,2) NOT NULL,
 	num_detalle_venta int GENERATED ALWAYS AS IDENTITY not null,
 	CONSTRAINT DETALLE_VENTA_PK PRIMARY KEY (num_venta,id_producto),
 	CONSTRAINT ORDEN_PRODUCTO_FK FOREIGN KEY (id_producto) REFERENCES  PRODUCTO(id_producto) on delete CASCADE,

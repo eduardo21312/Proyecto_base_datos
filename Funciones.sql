@@ -130,3 +130,66 @@ return query (select v.nota,v.fecha_venta,concat(c.nombre,' ',c.apellido_paterno
 END;
 $$
 LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION crea_num_venta()
+RETURNS trigger AS
+$$
+begin
+if(exists(select num_venta from DETALLE_VENTA)) then
+new.nota=concat(new.nota,(RIGHT((concat('000' , CAST(new.num_venta AS VARCHAR(3)))),3)));
+return new;
+else
+new.nota=concat(new.nota,(RIGHT((concat('000' , CAST(new.num_venta AS VARCHAR(3)))),3)));
+return new;
+end if;
+END;
+$$
+LANGUAGE plpgsql;
+
+------trigger----
+
+CREATE TRIGGER trigger_num_venta
+before insert
+ON DETALLE_VENTA
+FOR EACH ROW
+EXECUTE PROCEDURE crea_num_venta();
+---------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION verifica_codigo_test()
+RETURNS trigger AS
+$$
+begin
+if(exists(select id_producto from PRODUCTO)) then
+return new;
+
+else
+return new;
+end if;
+
+END;
+$$
+LANGUAGE plpgsql;
+
+----trigger----
+CREATE TRIGGER verifica_trigger
+before insert
+ON PRODUCTO
+FOR EACH ROW
+EXECUTE PROCEDURE verifica_codigo_test();
+------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION cantidad_total_venta(fecha_inicio DATE, fecha_fin DATE)
+RETURNS  table(cantidad_vendida  numeric)
+as
+$$
+begin
+return query (select sum(dv.vental_total)
+              from VENTA as ve inner join
+              DETALLE_VENTA  as dv on ve.num_venta=dv.num_venta
+              where ve.num_venta=dv.num_venta and ve.fecha_venta between fecha_inicio and fecha_fin);
+END;
+$$
+LANGUAGE plpgsql;
+
+

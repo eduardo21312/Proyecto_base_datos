@@ -73,6 +73,37 @@ END;
 $$
 LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION vista_informacion_por_orden(No_orden_cliente_recibida varchar(8))
+RETURNS  table(
+               num_venta int,
+               fecha date,
+               Nombre varchar(60),
+               cantidad_producto decimal(6,2),
+               venta_total DECIMAL(7,2)) AS
+$$
+begin
+return query (select dv.num_venta,dv.fecha_venta,concat(c.nombre_pila,' ',c.apellido_p,' ',c.apellido_m),
+              count(v.cantidad_articulo),SUM(v.total_pagar)
+              from DETALLE_VENTA as dv inner join
+              VENTA  as v on dv.num_venta=v.num_venta
+              inner join CLIENTE as c on c.razon_cliente=dv.razon_cliente
+              where dv.nota_venta=No_orden_cliente_recibida group by dv.No_venta,dv.fecha_venta,c.nombre_pila,c.apellido_p,c.apellido_m);
+END;
+$$
+LANGUAGE plpgsql;
+
+
+--esta fucnion nos devuelve el campo que tengaestock menor a 3 en tabla inventario
+CREATE OR REPLACE FUNCTION stock_menor_3()
+RETURNS  table(nombre  varchar(40))
+as
+$$
+begin
+return query (select p.nombre from  INVENTARIO i inner join prvucto p on i.cvigo_barras=p.cvigo_barras where i.unidades_stock<3);
+END;
+$$
+LANGUAGE plpgsql;
+
 
 
 --se hace una funcion vista para cada orden de producto como hay ordenes con diferentes producto aqui arroja todos los productos que se estan

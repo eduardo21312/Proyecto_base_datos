@@ -192,4 +192,28 @@ END;
 $$
 LANGUAGE plpgsql;
 
-
+-- Adrian
+CREATE OR REPLACE FUNCTION codigo_doble_revisar()
+RETURNS trigger AS
+$$
+declare id_funcion int;
+begin
+	if exists((SELECT codigo_barras,razon_social FROM PRODUCTO group by codigo_barras,razon_social having count(*)>1))then
+		raise notice 'Error al insertar: Ya hay un producto con el mismo codigo de barras y proveedor';
+		select (max(id_producto)-1) from PRODUCTO into id_funcion;
+		execute 'alter SEQUENCE ciclo_producto_id RESTART with '|| id_funcion;
+		delete from PRODUCTO where id_producto=(select (max(id_producto)) from PRODUCTO);
+		return new;
+	else
+		select max(id_producto)+1 from PRODUCTO into id_funcion;
+		execute 'alter SEQUENCE ciclo_producto_id RESTART with'|| id_funcion;
+		UPDATE PRODUCTO
+		set utilidad=(select precio from PRODUCTO group by precio having max(id_producto)=(select max(id_producto) from PRODUCTO))-(select precio_compra from INVENTARIO
+			where codigo_barras=(select codigo_barras from PRODUCTO group by codigo_barras having max(id_producto)=(select max(id_producto) from PRODUCTO)))
+			where id_producto=(select max(id_producto) from PRODUCTO);
+		raise notice 'Inserción exitosa';
+		return new;
+	end if;
+END;
+$$
+LANGUAGE plpgsql;

@@ -193,27 +193,47 @@ $$
 LANGUAGE plpgsql;
 
 -- Adrian
-CREATE OR REPLACE FUNCTION codigo_doble_revisar()
+-- Multifunción
+CREATE OR REPLACE FUNCTION multifuncion_stock()
 RETURNS trigger AS
 $$
 declare id_funcion int;
 begin
-	if exists((SELECT codigo_barras,razon_social FROM PRODUCTO group by codigo_barras,razon_social having count(*)>1))then
-		raise notice 'Error al insertar: Ya hay un producto con el mismo codigo de barras y proveedor';
-		select (max(id_producto)-1) from PRODUCTO into id_funcion;
-		execute 'alter SEQUENCE ciclo_producto_id RESTART with '|| id_funcion;
-		delete from PRODUCTO where id_producto=(select (max(id_producto)) from PRODUCTO);
-		return new;
-	else
-		select max(id_producto)+1 from PRODUCTO into id_funcion;
-		execute 'alter SEQUENCE ciclo_producto_id RESTART with'|| id_funcion;
-		UPDATE PRODUCTO
-		set utilidad=(select precio from PRODUCTO group by precio having max(id_producto)=(select max(id_producto) from PRODUCTO))-(select precio_compra from INVENTARIO
-			where codigo_barras=(select codigo_barras from PRODUCTO group by codigo_barras having max(id_producto)=(select max(id_producto) from PRODUCTO)))
-			where id_producto=(select max(id_producto) from PRODUCTO);
-		raise notice 'Inserción exitosa';
-		return new;
+-- if para saber si hay suficientes unidades parahacerel insert
+-- auqnue el insert ya sehizo
+if((select cantidad_bodega - (select cantidad_articulo from detalle_venta where num_venta=(select num_venta from detalle_venta  group by num_venta
+      having max(num_venta)=(select max(num_venta) from detalle_venta )))from INVENTARIO where codigo_barras=(select codigo_barras from PRODUCTO P where id_producto=
+        (select id_producto from detalle_venta where num_venta=(select num_venta from detalle_venta  group by num_venta
+           having max(num_venta)=(select max(num_venta) from detalle_venta )))))< 0) then raise notice 'Inventario lleno: Venta no registrada';
+            delete from detalle_venta where num_venta=(select (max(num_venta)) from detalle_venta);
+             return null;
+else
+--si hay inventario suficientehacemos el update  dl campo precio_por_unidad del producto
+UPDATE detalle_venta
+ set precio_producto=
+  (select precio_venta from PRODUCTO P where id_producto=(select id_producto from detalle_venta where num_venta=(select num_venta from detalle_venta group by num_venta
+    having max(num_venta)=(select max(num_venta) from detalle_venta )))) where num_venta=(select max(num_venta) from detalle_venta);
+-- actualizamos el total a pagar
+    UPDATE detalle_venta set total_pagar=(select cantidad_articulo*(select precio_producto from detalle_venta where num_venta=(select num_venta
+      from detalle_venta  group by num_venta having max(num_venta)=(select max(num_venta) from detalle_venta )))from detalle_venta
+       where num_venta=(select num_venta from detalle_venta  group by num_venta having max(num_venta)=(select max(num_venta) from detalle_venta )))
+        where num_venta=(select max(num_venta) from detalle_venta );
+-- actualizamos el inventario
+     UPDATE INVENTARIO set cantidad_bodega= (select cantidad_bodega -(select cantidad_articulo from detalle_venta where num_venta=(select num_venta from detalle_venta  group by num_venta
+      having max(num_venta)=(select max(num_venta) from detalle_venta ))) from INVENTARIO where codigo_barras=(select codigo_barras from PRODUCTO P where id_producto=
+        (select id_producto from detalle_venta where num_venta=(select num_venta from detalle_venta  group by num_venta having max(num_venta)=
+         (select max(num_venta) from detalle_venta ))))) where codigo_barras=(select codigo_barras from PRODUCTO P where id_producto=(select id_producto from detalle_venta
+            where num_venta=(select num_venta from detalle_venta group by num_venta having max(num_venta)=(select max(num_venta) from detalle_venta ))));
+--si quedan menor que 3 en el inventario
+	if((select cantidad_bodega -(select cantidad_articulo from detalle_venta where num_venta=(select num_venta from detalle_venta  group by num_venta
+      having max(num_venta)=(select max(num_venta) from detalle_venta ))) from INVENTARIO where codigo_barras=(select codigo_barras from PRODUCTO P where id_producto=
+        (select id_producto from detalle_venta where num_venta=(select num_venta from detalle_venta  group by num_venta having max(num_venta)=(select max(num_venta) from detalle_venta )))))<=3) then
+          raise notice 'Advertencia: Stock del producto es menor o igual a 3';
 	end if;
+	 raise notice 'No se pudo insertar';
+     return new;
+	 end if;
 END;
 $$
 LANGUAGE plpgsql;
+

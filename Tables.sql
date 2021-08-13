@@ -1,3 +1,4 @@
+CREATE DATABASE AruShop;
 -- Tabla proveedor
 CREATE TABLE PROVEDOR(
 	razon_social varchar(60) NOT NULL,

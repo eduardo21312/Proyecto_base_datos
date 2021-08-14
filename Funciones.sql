@@ -281,7 +281,7 @@ $$
 LANGUAGE plpgsql;
 
 
-//se crea  el trigger por si haceel borrado
+--se crea  el trigger por si haceel borrado
 CREATE TRIGGER trigger_borrado_venta
 after delete
 ON VENTA

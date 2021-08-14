@@ -236,4 +236,29 @@ UPDATE detalle_venta
 END;
 $$
 LANGUAGE plpgsql;
+---------
+
+CREATE OR REPLACE FUNCTION rev_borrado_producto()
+RETURNS trigger AS
+$$
+declare max_id int;
+begin
+if exists(select id_producto from PRODUCTO) then
+select (max(id_producto)+1) from PRODUCTO into max_id;
+execute 'alter SEQUENCE producto_id_producto_seq  RESTART with '|| max_id;
+return new;
+else
+perform reinicia2();
+return new;
+end if;
+END;
+$$
+LANGUAGE plpgsql;
+
+//hacemos el trigger  por si hace el delete from producto y llame a la funcion verfica borrado producto
+CREATE TRIGGER trigger_borrado_actualiza_id
+after delete
+ON PRODUCTO
+FOR EACH ROW
+EXECUTE PROCEDURE rev_borrado_producto();
 

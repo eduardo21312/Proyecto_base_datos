@@ -53,8 +53,8 @@ CREATE TABLE CLIENTE(
 	 calle varchar(30) NOT NULL,
 	 numero int CHECK (numero>0),
 	 colonia varchar(30) NOT NULL,
-	 codigo_postal varchar(5) NOT NULL,
-	 estado int NOT NULL,
+	 codigo_postal int CHECK (codigo_postal>0) NOT NULL,
+	 estado VARCHAR(30) NOT NULL,
 	 CONSTRAINT razon_cliente_PK PRIMARY KEY (rfc)
 );
 
